@@ -5,13 +5,18 @@
 
 string8_t string8_new(char* bytes) {
 
+    return string8_lnew(strlen(bytes), bytes);
+}
+
+string8_t string8_lnew(uint8_t length, char* bytes) {
+
     string8_t string;
 
-    string.length = strlen(bytes);
-    string.bytes  = malloc(string.length);
+    string.length = length;
+    string.bytes  = calloc(length + 1, 1);
 
-    if (string.bytes)
-        strcpy(string.bytes, bytes);
+    if (bytes && string.bytes)
+        strncpy(string.bytes, bytes, length);
 
     return string;
 }
@@ -45,7 +50,15 @@ bool string8_eq(string8_t string1, string8_t string2) {
     return strcmp(string1.bytes, string2.bytes) == 0;
 }
 
+string8_t string8_cat(string8_t string1, string8_t string2) {
 
+    string8_t result = string8_lnew(string1.length + string2.length, NULL);
+
+    strncpy(result.bytes, string1.bytes, string1.length);
+    strncpy(result.bytes + string1.length, string2.bytes, string2.length);
+
+    return result;
+}
 
 //  a  b  c  d  e
 //  0  1  2  3  4

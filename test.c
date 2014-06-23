@@ -20,8 +20,12 @@ int main(void) {
         string8_eq(string1, string2)
     );
 
-    string8_free(string2);
+    string8_t concat = string8_cat(string1, string2);
+    printf("Concatenated: %s\n", concat.bytes);
+
     string8_free(string1);
+    string8_free(string2);
+    string8_free(concat);
 
     return 0;
 }
