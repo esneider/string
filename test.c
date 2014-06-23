@@ -4,10 +4,10 @@
 
 #include "string.h"
 
-#define verify(condition) 
+#define verify(condition)
 
 int main(void) {
-    
+
     string8_t temp;
 
     string8_t string1 = string8_new("hello world");
@@ -17,9 +17,9 @@ int main(void) {
     printf("Testing new()...\n");
     assert(strcmp("hello world", string1.bytes) == 0);
 
-    
+
     printf("Testing at()...\n");
-    
+
     assert(*string8_at(string1, 4) == 'o');
     assert(*string8_at(string1, -1) == 'd');
 
@@ -70,7 +70,7 @@ int main(void) {
 
     printf("Testing split()...\n");
 
-    string8_split_t split = string8_split(string1, 'o');
+    string8_split_t split = string8_split_init(string1, 'o');
 
     temp = string8_split_next(&split);
     assert(strcmp(temp.bytes, "hell") == 0);
