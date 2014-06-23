@@ -3,13 +3,25 @@
 #include "string.h"
 
 int main(void) {
-    
-    string8_t string = string8_new("hello world");
-    printf("'%s' at 3: %c\n", string.bytes, string8_at(string, 3));
+    string8_t string1 = string8_new("hello world");
+    string8_t string2 = string8_new("another");
 
-    // This would result in a fault:
-    // string8_free(string);
-    // The string is literal, and was not allocated.
+    printf("%s\n", string1.bytes);
+    printf(" 2: %c\n" , *string8_at(string1, 2));
+    printf("-1: %c\n", *string8_at(string1, -1));
+
+    printf("Compared to itself: %d %d\n",
+        string8_cmp(string1, string1),
+        string8_eq(string1, string1)
+    );
+
+    printf("Compared to 'another': %d %d\n",
+        string8_cmp(string1, string2),
+        string8_eq(string1, string2)
+    );
+
+    string8_free(string2);
+    string8_free(string1);
 
     return 0;
 }

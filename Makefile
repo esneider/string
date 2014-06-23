@@ -1,3 +1,5 @@
+.SILENT:
+
 build:
 	clang *.c -o test
 
