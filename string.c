@@ -4,9 +4,13 @@
 #include "string.h"
 
 string8_t string8_new(char* bytes) {
+    
+    if (! bytes)
+        return (string8_t) {0, NULL};
 
     return string8_lnew(strlen(bytes), bytes);
 }
+
 
 string8_t string8_lnew(uint8_t length, char* bytes) {
 
@@ -21,6 +25,7 @@ string8_t string8_lnew(uint8_t length, char* bytes) {
     return string;
 }
 
+
 char* string8_at(string8_t string, long pos) {
 
     pos = (pos >= 0) ? pos : string.length + pos;
@@ -30,6 +35,7 @@ char* string8_at(string8_t string, long pos) {
 
     return string.bytes + pos;
 }
+
 
 bool string8_empty(string8_t string) {
 
@@ -42,6 +48,7 @@ int string8_cmp(string8_t string1, string8_t string2) {
     return strcmp(string1.bytes, string2.bytes);
 }
 
+
 bool string8_eq(string8_t string1, string8_t string2) {
 
     if (string1.length < string2.length)
@@ -49,6 +56,7 @@ bool string8_eq(string8_t string1, string8_t string2) {
 
     return strcmp(string1.bytes, string2.bytes) == 0;
 }
+
 
 string8_t string8_cat(string8_t string1, string8_t string2) {
 
@@ -66,5 +74,6 @@ string8_t string8_cat(string8_t string1, string8_t string2) {
 // 5
 
 void string8_free(string8_t string) {
+
     free(string.bytes);
 }
