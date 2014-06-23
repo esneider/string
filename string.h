@@ -12,8 +12,9 @@ struct string8 {
 
 typedef struct string8 string8_t;
 
-string8_t string8_new(char* bytes);
-string8_t string8_lnew(uint8_t length, char* bytes);
+string8_t string8_new(const char* bytes);
+string8_t string8_lnew(uint8_t length, const char* bytes);
+
 
 bool string8_empty(string8_t string);
 char* string8_at(string8_t string, long pos);

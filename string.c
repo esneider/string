@@ -3,8 +3,9 @@
 
 #include "string.h"
 
-string8_t string8_new(char* bytes) {
-    
+
+string8_t string8_new(const char* bytes) {
+
     if (! bytes)
         return (string8_t) {0, NULL};
 
@@ -12,7 +13,7 @@ string8_t string8_new(char* bytes) {
 }
 
 
-string8_t string8_lnew(uint8_t length, char* bytes) {
+string8_t string8_lnew(uint8_t length, const char* bytes) {
 
     string8_t string;
 
