@@ -56,7 +56,7 @@ __string __fn(lnew)(__uint length, const char *bytes) {
 
 char *__fn(at)(__string string, long pos) {
 
-    if (pos < -string.length)
+    if (-pos > string.length)
         return NULL;
 
     if (pos >= string.length)
@@ -108,7 +108,7 @@ __string __fn(cat)(__string s1, __string s2) {
 
 static long __fn(slice_index)(__string string, long pos) {
 
-    if (pos < -string.length)
+    if (-pos > string.length)
         return 0;
 
     if (pos >= string.length)
@@ -158,9 +158,9 @@ __string __fn(split_next)(__split *split) {
     return __fn(lnew)(end - start, start);
 }
 
-__string __fn(join)(const __string *const parts, size_t n, char c) {
+__string __fn(join)(const __string *parts, size_t n, char c) {
 
-    uintmax_t length = n - 1;
+    uintmax_t length = n ? n - 1 : 0;
     uintmax_t pos;
 
     for (size_t i = 0; i < n; i++) {
