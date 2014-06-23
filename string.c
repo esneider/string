@@ -15,10 +15,10 @@ string8_t string8_new(const char* bytes) {
 
 string8_t string8_lnew(uint8_t length, const char* bytes) {
 
-    string8_t string;
-
-    string.length = length;
-    string.bytes  = calloc(length + 1, 1);
+    string8_t string = {
+        .length = length,
+        .bytes  = calloc(length + 1, 1),
+    };
 
     if (bytes && string.bytes)
         strncpy(string.bytes, bytes, length);
@@ -48,27 +48,32 @@ bool string8_empty(string8_t string) {
 }
 
 
-int string8_cmp(string8_t string1, string8_t string2) {
+int string8_cmp(string8_t s1, string8_t s2) {
 
-    return strcmp(string1.bytes, string2.bytes);
+    return strcmp(s1.bytes, s2.bytes);
 }
 
 
-bool string8_eq(string8_t string1, string8_t string2) {
+bool string8_eq(string8_t s1, string8_t s2) {
 
-    if (string1.length < string2.length)
+    if (s1.length < s2.length)
         return false;
 
-    return strcmp(string1.bytes, string2.bytes) == 0;
+    return strcmp(s1.bytes, s2.bytes) == 0;
 }
 
 
-string8_t string8_cat(string8_t string1, string8_t string2) {
+string8_t string8_cat(string8_t s1, string8_t s2) {
 
-    string8_t result = string8_lnew(string1.length + string2.length, NULL);
+    uintmax_t length = (uintmax_t) s1.length + (uintmax_t) s2.length;
 
-    strncpy(result.bytes, string1.bytes, string1.length);
-    strncpy(result.bytes + string1.length, string2.bytes, string2.length);
+    if (length > UINT8_MAX)
+        length = UINT8_MAX;
+
+    string8_t result = string8_lnew(length, NULL);
+
+    strncpy(result.bytes, s1.bytes, s1.length);
+    strncpy(result.bytes + s1.length, s2.bytes, length - s1.length);
 
     return result;
 }
@@ -104,7 +109,7 @@ string8_t string8_slice(string8_t string, long from, long to) {
 string8_split_t string8_split(string8_t string, char c) {
 
     return (string8_split_t) {
-        .separator = c,
+        .delimiter = c,
         .last = string.bytes,
     };
 }
@@ -118,12 +123,45 @@ string8_t string8_split_next(string8_split_t* split) {
     if (*start == '\0')
         return (string8_t) {0, NULL};
 
-    while(*end && *end != split->separator)
+    while(*end && *end != split->delimiter)
         end++;
 
     split->last = *end ? end + 1 : end;
 
     return string8_lnew(end - start, start);
+}
+
+string8_t string8_join(const string8_t* const parts, size_t n, char c) {
+
+    uintmax_t length = n - 1;
+    uintmax_t pos;
+    
+    for (size_t i = 0; i < n; i++) {
+        length += parts[i].length;
+
+        if (length > UINT8_MAX) {
+            length = UINT8_MAX;
+            break;
+        }
+    }
+
+    string8_t string = string8_lnew(length, NULL);
+
+    pos = 0;
+
+    for (size_t i = 0; i < n; i++) {
+        if (pos >= length)
+            break;
+
+        strncpy(string.bytes + pos, parts[i].bytes, length - pos);
+
+        pos += parts[i].length;
+
+        if (i + 1 < n)
+            string.bytes[pos++] = c;
+    }
+
+    return string;
 }
 
 // string_split_t iter = string_split(string);

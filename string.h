@@ -6,15 +6,15 @@
 #include <stdbool.h>
 
 struct string8 {
-    uint8_t length;
-    char* bytes;
+    const uint8_t length;
+    char* const bytes;
 };
 
 typedef struct string8 string8_t;
 
 
 struct string8_split {
-    char  separator;
+    char  delimiter;
     char* last;
 };
 
@@ -38,6 +38,8 @@ string8_t string8_slice(string8_t string, long from, long to);
 
 string8_split_t string8_split(string8_t string, char c);
 string8_t string8_split_next(string8_split_t* split);
+string8_t string8_join(const string8_t* const parts, size_t n, char c);
+
 
 
 void string8_free(string8_t string);

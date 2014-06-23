@@ -12,6 +12,7 @@ int main(void) {
 
     string8_t string1 = string8_new("hello world");
     string8_t string2 = string8_new("another");
+    string8_t string3 = string8_new("a third");
 
     printf("Testing new()...\n");
     assert(strcmp("hello world", string1.bytes) == 0);
@@ -87,8 +88,20 @@ int main(void) {
     assert(! temp.bytes);
     string8_free(temp);
 
+
+    printf("Testing join()...\n");
+
+    string8_t parts[] = {string1, string2, string3};
+    temp = string8_join(parts, 3, ' ');
+    assert(strcmp(temp.bytes, "hello world another a third") == 0);
+    string8_free(temp);
+
+    // string8_t[] parts = {s1, s2, s3};
+    // int joined = join(parts, sizeof(parts) / sizeof(*parts));
+
     string8_free(string1);
     string8_free(string2);
+    string8_free(string3);
 
 
     printf("All tests passed.\n");
