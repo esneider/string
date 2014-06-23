@@ -4,7 +4,7 @@
 #include "string.h"
 
 
-string8_t string8_new(const char* bytes) {
+string8_t string8_new(const char *bytes) {
 
     if (! bytes)
         return (string8_t) {0, NULL};
@@ -13,7 +13,7 @@ string8_t string8_new(const char* bytes) {
 }
 
 
-string8_t string8_lnew(uint8_t length, const char* bytes) {
+string8_t string8_lnew(uint8_t length, const char *bytes) {
 
     string8_t string = {
         .length = length,
@@ -27,7 +27,7 @@ string8_t string8_lnew(uint8_t length, const char* bytes) {
 }
 
 
-char* string8_at(string8_t string, long pos) {
+char *string8_at(string8_t string, long pos) {
 
     if (pos < -string.length)
         return NULL;
@@ -115,10 +115,10 @@ string8_split_t string8_split(string8_t string, char c) {
 }
 
 
-string8_t string8_split_next(string8_split_t* split) {
+string8_t string8_split_next(string8_split_t *split) {
 
-    char* start = split->last;
-    char* end   = start;
+    const char *start = split->last;
+    const char *end   = start;
 
     if (*start == '\0')
         return (string8_t) {0, NULL};
@@ -131,7 +131,7 @@ string8_t string8_split_next(string8_split_t* split) {
     return string8_lnew(end - start, start);
 }
 
-string8_t string8_join(const string8_t* const parts, size_t n, char c) {
+string8_t string8_join(const string8_t *const parts, size_t n, char c) {
 
     uintmax_t length = n - 1;
     uintmax_t pos;
