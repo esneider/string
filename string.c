@@ -1,48 +1,20 @@
+#include <stdlib.h>
+#include <string.h>
 #include "string.h"
 
 
-#if !defined(__STRING_BITS)
-
-
-#include <stdlib.h>
-#include <string.h>
-
-
-#define __STRING_BITS 8
-#include "string.c"
-
-#define __STRING_BITS 16
-#include "string.c"
-
-#define __STRING_BITS 32
-#include "string.c"
-
-
-#elif defined(__STRING_BITS) /* else */
-
-
-#define __CONCAT_3__(a,b,c) a ## b ## c
-#define __CONCAT_3(a,b,c) __CONCAT_3__(a,b,c)
-
-#define __uint     __CONCAT_3(  uint, __STRING_BITS, _t)
-#define __UINT_MAX __CONCAT_3(  UINT, __STRING_BITS, _MAX)
-#define __fn(name) __CONCAT_3(string, __STRING_BITS, _ ## name)
-#define __string   __CONCAT_3(string, __STRING_BITS, _t)
-#define __split    __CONCAT_3(string, __STRING_BITS, _split_t)
-
-
-__string __fn(new)(const char *bytes) {
+string_t string_new(const char *bytes) {
 
     if (! bytes)
-        return (__string) {0, NULL};
+        return (string_t) {0, NULL};
 
-    return __fn(lnew)(strlen(bytes), bytes);
+    return string_lnew(strlen(bytes), bytes);
 }
 
 
-__string __fn(lnew)(__uint length, const char *bytes) {
+string_t string_lnew(size_t length, const char *bytes) {
 
-    __string string = {
+    string_t string = {
         .length = length,
         .bytes  = calloc(length + 1, 1),
     };
@@ -54,12 +26,22 @@ __string __fn(lnew)(__uint length, const char *bytes) {
 }
 
 
-char *__fn(at)(__string string, long pos) {
+bool string_null(string_t string) {
 
-    if (-pos > string.length)
+    return !! string.bytes;
+}
+
+bool string_empty(string_t string) {
+
+    return ! string.length && string.bytes;
+}
+
+char *string_at(string_t string, int32_t pos) {
+
+    if (-pos > (int_fast32_t)string.length)
         return NULL;
 
-    if (pos >= string.length)
+    if (pos >= (int_fast32_t)string.length)
         return NULL;
 
     if (pos < 0)
@@ -69,19 +51,13 @@ char *__fn(at)(__string string, long pos) {
 }
 
 
-bool __fn(empty)(__string string) {
-
-    return ! string.length;
-}
-
-
-int __fn(cmp)(__string s1, __string s2) {
+int string_cmp(string_t s1, string_t s2) {
 
     return strcmp(s1.bytes, s2.bytes);
 }
 
 
-bool __fn(eq)(__string s1, __string s2) {
+bool string_eq(string_t s1, string_t s2) {
 
     if (s1.length < s2.length)
         return false;
@@ -90,14 +66,14 @@ bool __fn(eq)(__string s1, __string s2) {
 }
 
 
-__string __fn(cat)(__string s1, __string s2) {
+string_t string_cat(string_t s1, string_t s2) {
 
     uintmax_t length = (uintmax_t) s1.length + (uintmax_t) s2.length;
 
-    if (length > __UINT_MAX)
-        length = __UINT_MAX;
+    if (length > UINT32_MAX)
+        length = UINT32_MAX;
 
-    __string result = __fn(lnew)(length, NULL);
+    string_t result = string_lnew(length, NULL);
 
     strncpy(result.bytes, s1.bytes, s1.length);
     strncpy(result.bytes + s1.length, s2.bytes, length - s1.length);
@@ -106,12 +82,12 @@ __string __fn(cat)(__string s1, __string s2) {
 }
 
 
-static long __fn(slice_index)(__string string, long pos) {
+static size_t string_slice_index(string_t string, int32_t pos) {
 
-    if (-pos > string.length)
+    if (-pos > (int_fast32_t)string.length)
         return 0;
 
-    if (pos >= string.length)
+    if (pos >= (int_fast32_t)string.length)
         return string.length;
 
     if (pos < 0)
@@ -121,44 +97,44 @@ static long __fn(slice_index)(__string string, long pos) {
 }
 
 
-__string __fn(slice)(__string string, long from, long to) {
+string_t string_slice(string_t string, int32_t from, int32_t to) {
 
-    from = __fn(slice_index)(string, from);
-    to   = __fn(slice_index)(string, to);
+    from = string_slice_index(string, from);
+    to   = string_slice_index(string, to);
 
     if (from >= to)
-        return __fn(new)("");
+        return string_new("");
 
-    return __fn(lnew)(to - from, string.bytes + from);
+    return string_lnew(to - from, string.bytes + from);
 }
 
 
-__split __fn(split_init)(__string string, char c) {
+string_split_t string_split_init(string_t string, char c) {
 
-    return (__split) {
+    return (string_split_t) {
         .delimiter = c,
         .next = string.bytes,
     };
 }
 
 
-__string __fn(split_next)(__split *split) {
+string_t string_split_next(string_split_t *split) {
 
     const char *start = split->next;
     const char *end   = start;
 
     if (*start == '\0')
-        return (__string) {0, NULL};
+        return (string_t) {0, NULL};
 
     while(*end && *end != split->delimiter)
         end++;
 
     split->next = *end ? end + 1 : end;
 
-    return __fn(lnew)(end - start, start);
+    return string_lnew(end - start, start);
 }
 
-__string __fn(join)(const __string *parts, size_t n, char c) {
+string_t string_join(const string_t *parts, size_t n, char c) {
 
     uintmax_t length = n ? n - 1 : 0;
     uintmax_t pos;
@@ -166,13 +142,13 @@ __string __fn(join)(const __string *parts, size_t n, char c) {
     for (size_t i = 0; i < n; i++) {
         length += parts[i].length;
 
-        if (length > __UINT_MAX) {
-            length = __UINT_MAX;
+        if (length > UINT32_MAX) {
+            length = UINT32_MAX;
             break;
         }
     }
 
-    __string string = __fn(lnew)(length, NULL);
+    string_t string = string_lnew(length, NULL);
 
     pos = 0;
 
@@ -192,21 +168,8 @@ __string __fn(join)(const __string *parts, size_t n, char c) {
 }
 
 
-void __fn(free)(__string string) {
+void string_free(string_t string) {
 
     free(string.bytes);
 }
-
-
-#undef __STRING_BITS
-#undef __CONCAT_3__
-#undef __CONCAT_3
-#undef __uint
-#undef __UINT_MAX
-#undef __fn
-#undef __string
-#undef __split
-
-
-#endif /* defined(__STRING_BITS) */
 
